@@ -34,6 +34,11 @@ src_libwolfssl_la_LIBADD = $(LIBM) $(LIB_ADD) $(LIB_STATIC_ADD)
 src_libwolfssl_la_CFLAGS = -DBUILDING_WOLFSSL $(AM_CFLAGS) -DLIBWOLFSSL_GLOBAL_EXTRA_CFLAGS="\" $(EXTRA_CFLAGS)\""
 src_libwolfssl_la_CPPFLAGS = -DBUILDING_WOLFSSL $(AM_CPPFLAGS)
 
+EXTRA_LTLIBRARIES = wolfcrypt/src/libaes.la
+wolfcrypt_src_libaes_la_SOURCES = wolfcrypt/src/aes.c
+wolfcrypt_src_libaes_la_CFLAGS = $(CFLAGS_AESNI) $(src_libwolfssl_la_CFLAGS)
+wolfcrypt_src_libaes_la_CPPFLAGS = $(src_libwolfssl_la_CPPFLAGS)
+
 # install the packaged IPP libraries
 if BUILD_FAST_RSA
 
@@ -184,7 +189,7 @@ src_libwolfssl_la_SOURCES += wolfcrypt/src/ecc.c
 endif
 
 if BUILD_AES
-src_libwolfssl_la_SOURCES += wolfcrypt/src/aes.c
+src_libwolfssl_la_LIBADD += wolfcrypt/src/libaes.la
 if BUILD_ARMASM
 src_libwolfssl_la_SOURCES += wolfcrypt/src/port/arm/armv8-aes.c
 endif
@@ -374,7 +379,7 @@ endif
 
 if !BUILD_FIPS_CURRENT
 if BUILD_AES
-src_libwolfssl_la_SOURCES += wolfcrypt/src/aes.c
+src_libwolfssl_la_LIBADD += wolfcrypt/src/libaes.la
 if BUILD_ARMASM
 src_libwolfssl_la_SOURCES += wolfcrypt/src/port/arm/armv8-aes.c
 endif

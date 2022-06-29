@@ -2048,9 +2048,8 @@ then
         ENABLED_AESNI=yes
     fi
 
-    if test "$ENABLED_AESNI" = "yes" || test "$ENABLED_INTELASM" = "yes"
+    if test "$ENABLED_INTELASM" = "yes"
     then
-        AM_CFLAGS="$AM_CFLAGS -DWOLFSSL_AESNI"
         if test "$GCC" = "yes"
         then
             # clang needs these flags
@@ -2067,15 +2066,34 @@ then
                 fi
             fi
         fi
-        AS_IF([test "x$ENABLED_AESGCM" != "xno"],[AM_CCASFLAGS="$AM_CCASFLAGS -DHAVE_AESGCM"])
-    fi
 
-    if test "$ENABLED_INTELASM" = "yes"
-    then
         AM_CFLAGS="$AM_CFLAGS -DUSE_INTEL_SPEEDUP"
         ENABLED_AESNI=yes
     fi
+
+    if test "$ENABLED_AESNI" = "yes"
+    then
+        AM_CFLAGS="$AM_CFLAGS -DWOLFSSL_AESNI"
+        if test "$GCC" = "yes" && test "$ENABLED_INTELASM" != "yes"
+        then
+            # These flags are used only for wolfcrypt/src/aes.c
+            # GCC may generate sse4 code that may cause problems on systems
+            # without aesni if -msse4 is used here.
+            if test "$CC" = "clang"
+            then
+                CFLAGS_AESNI="-maes -mpclmul"
+            else
+                if test "$CC" != "icc"
+                then
+                    CFLAGS_AESNI="-maes"
+                fi
+            fi
+        fi
+        AS_IF([test "x$ENABLED_AESGCM" != "xno"],[AM_CCASFLAGS="$AM_CCASFLAGS -DHAVE_AESGCM"])
+    fi
+
 fi
+AC_SUBST([CFLAGS_AESNI])
 
 AC_ARG_ENABLE([aligndata],
     [AS_HELP_STRING([--enable-aligndata],[align data for ciphers (default: enabled)])],
