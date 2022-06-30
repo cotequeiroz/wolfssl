@@ -2048,50 +2048,24 @@ then
         ENABLED_AESNI=yes
     fi
 
-    if test "$ENABLED_INTELASM" = "yes"
-    then
-        if test "$GCC" = "yes"
-        then
-            # clang needs these flags
-            if test "$CC" = "clang"
-            then
-                AM_CFLAGS="$AM_CFLAGS -maes -mpclmul"
-            else
-                # GCC needs these flags, icc doesn't
-                # opt levels greater than 2 may cause problems on systems w/o
-                # aesni
-                if test "$CC" != "icc"
-                then
-                    AM_CFLAGS="$AM_CFLAGS -maes -msse4 -mpclmul"
-                fi
-            fi
-        fi
-
-        AM_CFLAGS="$AM_CFLAGS -DUSE_INTEL_SPEEDUP"
-        ENABLED_AESNI=yes
-    fi
-
-    if test "$ENABLED_AESNI" = "yes"
+    if test "$ENABLED_AESNI" = "yes" || test "$ENABLED_INTELASM" = "yes"
     then
         AM_CFLAGS="$AM_CFLAGS -DWOLFSSL_AESNI"
-        if test "$GCC" = "yes" && test "$ENABLED_INTELASM" != "yes"
+        if test "$GCC" = "yes" && test "$CC" != "icc"
         then
-            # These flags are used only for wolfcrypt/src/aes.c
-            # GCC may generate sse4 code that may cause problems on systems
-            # without aesni if -msse4 is used here.
-            if test "$CC" = "clang"
-            then
-                CFLAGS_AESNI="-maes -mpclmul"
-            else
-                if test "$CC" != "icc"
-                then
-                    CFLAGS_AESNI="-maes"
-                fi
-            fi
+            # GCC & clang need this flag, icc doesn't
+            # opt levels greater than 2 may cause problems on systems w/o
+            # aesni
+            CFLAGS_AESNI="$AM_CFLAGS -maes"
         fi
         AS_IF([test "x$ENABLED_AESGCM" != "xno"],[AM_CCASFLAGS="$AM_CCASFLAGS -DHAVE_AESGCM"])
     fi
 
+    if test "$ENABLED_INTELASM" = "yes"
+    then
+        AM_CFLAGS="$AM_CFLAGS -DUSE_INTEL_SPEEDUP"
+        ENABLED_AESNI=yes
+    fi
 fi
 AC_SUBST([CFLAGS_AESNI])
 

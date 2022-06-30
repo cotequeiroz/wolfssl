@@ -4875,7 +4875,7 @@ void AES_GCM_decrypt_avx2(const unsigned char *in, unsigned char *out,
 #ifdef __clang__
     /* With Clang the __m128i in emmintrin.h is union using:
      *     "unsigned __int64 m128i_u64[2];"
-     * Notes: Must add "-maes -msse4.1 -mpclmul" to compiler flags.
+     * Notes: Must add "-maes" to compiler flags.
      *        Must mark "aes_asm.asm" as included/compiled C file.
      */
     #define M128_INIT(x,y) { (long long)x, (long long)y }
